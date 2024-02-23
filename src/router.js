@@ -1,19 +1,20 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createWebHistory, createRouter } from 'vue-router';
 import Home from '../src/components/HelloWorld.vue';
-import PruebaComponent from '../src/components/PruebaComponent.vue';
+import LoginCfactura from '../src/components/LoginCfactura.vue';
 
-const router = createRouter({
+export const routes = [
+  {
+    path: '/',
+    component: Home,
+  },
+  {
+    path: '/LoginCfactura',
+    component: LoginCfactura,
+  }
+];
+
+export const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    { path: '/', component: Home },
-    { path: '/prueba', component: PruebaComponent }
-    // Agrega más rutas según sea necesario para tus "páginas" (vistas)
-  ]
-})
-
-const app = createApp(App)
-app.use(router)
-app.mount('#app')
+  routes
+});
 

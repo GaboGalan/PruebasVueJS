@@ -1,22 +1,12 @@
-import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import App from './App.vue'
-import HelloWorld from '../src/components/HelloWorld'
-import PruebaComponent from '../src/components/PruebaComponent'
+import { createApp } from 'vue';
+import App from './App.vue';
+import vuetify from './plugins/vuetify';
+import { loadFonts } from './plugins/webfontloader';
+import { router } from './router.js';
 
-const routes = [
-    {
-        path:'/', component: HelloWorld,
-    },{
-        path:'/prueba', component: PruebaComponent,
-    }
-]
+loadFonts();
 
-const router = createRouter({
-    history:createWebHistory(),
-    routes
-})
-
-const app = createApp(App)
-app.use(router)
-app.mount('#app')
+createApp(App)
+  .use(vuetify)
+  .use(router)
+  .mount('#app');
