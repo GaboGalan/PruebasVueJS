@@ -78,10 +78,20 @@
     </div>
   </template>
   <script>
-    export default {
+/*     export default {
     name: "LoginCfactura",
       data: () => ({
         visible: false,
       }),
-    }
+    } */
+export default {
+  name: "LoginCfactura",
+  data() {
+    return {
+      visible: false
+    };
+  }
+}
   </script>
+
+  
