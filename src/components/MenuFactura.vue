@@ -3,44 +3,43 @@
     <!-- Header -->
     <v-app-bar app>
       <!-- Menú desplegable  -->
-      <v-app-bar-nav-icon id="menu-activator"></v-app-bar-nav-icon>
-      <v-menu activator="#menu-activator">
-        <v-list>
-          <v-list-item
-            v-for="(item, index) in items"
-            :key="index"
-            @click="navigateTo(item.path)"
-          >
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-
+      <v-btn
+        @click.stop="drawer = !drawer"
+        id="menu-activator"
+      >
+        <v-icon>mdi-menu</v-icon>
+      </v-btn>
       <v-toolbar-title>Facturación</v-toolbar-title>
-      <!-- Botón de usuario -->
-      <v-btn icon id="account-activator"><v-icon>mdi-account</v-icon></v-btn>
-      <v-menu right offset-y activator="#account-activator" location="start">
-        <v-list>
-          <v-list-item
-            prepend-avatar="https://cdn.vuetifyjs.com/images/john.jpg"
-            title="Usuario"
-          ></v-list-item>
-        </v-list>
-        <v-divider></v-divider>
-        <v-list>
-          <v-list-item @click="navigateTo('/datos')">
-            <v-list-item-title>Datos de perfil</v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="logout">
-            <v-list-item-title>Cerrar sesión</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
     </v-app-bar>
 
     <!-- Body -->
     <v-main>
       <v-container>
+        <!-- Menú lateral -->
+        <v-navigation-drawer
+          v-model="drawer"
+          temporary
+        >
+          <v-list-item
+            prepend-avatar="https://randomuser.me/api/portraits/men/78.jpg"
+            title="John Leider"
+          ></v-list-item>
+
+          <v-divider></v-divider>
+
+          <v-list density="compact" nav>
+            <v-list-item
+            v-for="(item, index) in items"
+            :key="index"
+            @click="navigateTo(item.path)"
+          >
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="logout">
+            <v-list-item-title>Cerrar sesión</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-navigation-drawer>
         <!-- Primera sección  -->
         <label for="">Datos de Factura</label>
         <v-row style="margin-top: 5px;">
@@ -105,23 +104,24 @@
         <v-row style="margin-top: 5px;">
           <v-col>
             <v-combobox
-              v-model="clienteSeleccionado"
+              v-model="selectedItem"
               label="Cliente"
+              
               :items="clientes"
-              @input="mostrarDetalleCliente"
               variant="outlined"
+              hide-selected
             ></v-combobox>
           </v-col>
         </v-row>
         <!-- Tarjeta para mostrar los detalles del cliente -->
         <v-row style="margin-bottom: 5px;">
           <v-col>
-            <v-card>
-              <v-card-title><!-- {{ clienteDetalle.nombre }} -->Nombre:</v-card-title>
+            <v-card color="#E6E6E6" v-if="clienteDetalle">
+              <v-card-title>{{ clienteDetalle.nombre }}</v-card-title>
               <v-card-text>
-                <p><!-- RFC: {{ clienteDetalle.rfc }} -->RFC:</p>
-                <p><!-- Contacto: {{ clienteDetalle.contacto }} -->Contacto:</p>
-                <p><!-- Dirección: {{ clienteDetalle.direccion }} -->Dirección:</p>
+                <p>RFC: {{ clienteDetalle.rfc }}</p>
+                <p>Contacto: {{ clienteDetalle.contacto }}</p>
+                <p>Dirección: {{ clienteDetalle.direccion }}</p>
               </v-card-text>
             </v-card>
           </v-col>
@@ -131,44 +131,45 @@
         <v-row style="margin-top: 5px;">
           <v-col cols="2">
             <v-combobox
-                label="Clave Interna"
-                :items="['001', '002', 'Etc', 'Etc']"
-                variant="outlined"
-              ></v-combobox>
+              v-model="selectedClaveInterna"
+              label="Clave Interna"
+              :items="productos.map(item => item[0])"
+              variant="outlined"
+            ></v-combobox>
           </v-col>
           <v-col cols="2">
-            <v-text-field label="Unidades" clearable></v-text-field>
+            <v-text-field v-model="unidades" label="Unidades" variant="outlined" clearable ></v-text-field>
           </v-col>
           <v-col cols="2">
-            <v-combobox
-                label="Clave Producto"
-                :items="['01010101', '10101500', 'Etc', 'Etc']"
-                variant="outlined"
-              ></v-combobox>
+            <v-text-field v-model="selectedClaveProducto" label="Clave Producto" variant="outlined" readonly></v-text-field>
           </v-col>
           <v-col cols="2">
-            <v-combobox
-                label="Clave unidad"
-                :items="['ACT', 'H87', 'Etc', 'Etc']"
-                variant="outlined"
-              ></v-combobox>
+            <v-text-field v-model="selectedClaveUnidad" label="Clave unidad" variant="outlined" readonly></v-text-field>
           </v-col>
           <v-col cols="4">
-            <v-text-field label="Descripción" clearable></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="2">
-            <v-text-field label="Precio"  prefix="$" clearable></v-text-field>
+            <v-text-field v-model="descripcion" label="Descripción" variant="outlined" readonly></v-text-field>
           </v-col>
           <v-col cols="2">
-            <v-text-field label="Importe" prefix="$" clearable></v-text-field>
+            <v-text-field v-model="precio" label="Precio" prefix="$" variant="outlined" readonly></v-text-field>
           </v-col>
           <v-col cols="2">
-            <v-text-field label="IVA" prefix="$" clearable></v-text-field>
+            <v-text-field v-model="importe" label="Importe" prefix="$" readonly></v-text-field>
           </v-col>
           <v-col cols="2">
-            <v-text-field label="Descuento" prefix="$" clearable></v-text-field>
+            <v-text-field label="IVA" prefix="$" variant="outlined" ></v-text-field>
+          </v-col>
+          <v-col cols="2">
+            <v-text-field label="Descuento" prefix="$" variant="outlined" ></v-text-field>
+          </v-col>
+          <v-col cols="4">
+            <v-card color="#D0E0F4">
+              <v-card-text>
+                <p>Subtotal:</p>
+                <p>Descuento:</p>
+                <p>IVA:</p>
+                <p>Total:</p>
+              </v-card-text>
+            </v-card>
           </v-col>
         </v-row>
       </v-container>
@@ -182,14 +183,18 @@ import { router } from '../router.js';
 export default {
   data() {
     return{
+    selectedItem: null,
+    drawer: false,
     items: [
       { title: 'Inicio', path: '/'},
       { title: 'Inventario', path: '/'},
       { title: 'Facturación', path: '/MenuFactura' },
       { title: 'Configuración', path: '/'},
     ],
-    clientes: ['Jaime', 'Pedro', 'Humberto', 'Etc'],
-      detallesClientes: {
+    clientes: ['Jaime', 'Pedro', 'Humberto', 'Etc'
+    ],
+    clienteDetalle: null,
+    detallesClientes: {
         Jaime: {
           nombre: 'Jaime',
           rfc: 'XXXXXXXXX',
@@ -214,10 +219,49 @@ export default {
           contacto: '9999999999',
           direccion: 'Calle Principal, Lugar'
         }
-      },
-      clienteSeleccionado: null,
-      clienteDetalle: null
+    },
+    productos: [
+      ['001', '01010101', 'ACT', 'Procesador AMD', 100],
+      ['002', '10101500', 'H87', 'Limpieza y actualización', 200],
+      ['Etc', 'Etc', 'Etc', 'Etc', 10]
+    ],
+    selectedClaveInterna: null,
+    selectedClaveProducto: null,
+    selectedClaveUnidad: null,
+    descripcion: '',
+    unidades: null,
+    precio: null,
+    importe: null 
     };
+  },
+  watch: {
+    selectedItem(newValue) {
+      if (newValue) {
+        this.clienteDetalle = this.detallesClientes[newValue];
+      } else {
+        this.clienteDetalle = null;
+      }
+    },
+    selectedClaveInterna(newValue) {
+      if (newValue) {
+        const productoSeleccionado = this.productos.find(producto => producto[0] === newValue);
+        if (productoSeleccionado) {
+          // Actualizar los campos con los detalles del producto seleccionado
+          this.unidades = '1';
+          this.selectedClaveProducto = productoSeleccionado[1];
+          this.selectedClaveUnidad = productoSeleccionado[2];
+          this.descripcion = productoSeleccionado[3];
+          this.precio = productoSeleccionado[4].toString();
+        }
+      }
+    },
+    //Recalcular valores de moni moni
+    unidades(newValue) {
+      this.calcularImporte(newValue);
+    },
+    precio() {
+      this.calcularImporte(this.unidades);
+    }
   },
   methods: {
     navigateTo(path) {
@@ -231,15 +275,11 @@ export default {
       const currentDate = new Date().toISOString().substr(0, 10);
       return currentDate;
     },
-    mostrarDetalleCliente() {
-      if (this.clienteSeleccionado) {
-        this.clienteDetalle = this.detallesClientes[this.clienteSeleccionado];
-        this.mostrarTarjeta = true;
-      } else {
-        this.clienteDetalle = null;
-      }
+    calcularImporte(unidades) {
+      const importe = parseFloat(this.precio) * parseFloat(unidades);
+      this.importe = isNaN(importe) ? '' : importe.toFixed(2);
     }
-  } 
+  }
 }
 </script>
 
