@@ -130,12 +130,32 @@
         <label for="">Producto/Servicio</label>
         <v-row style="margin-top: 5px;">
           <v-col cols="2">
-            <v-combobox
-              v-model="selectedClaveInterna"
-              label="Clave Interna"
-              :items="productos.map(item => item[0])"
-              variant="outlined"
-            ></v-combobox>
+            <!-- Textfield con botón para abrir el modal -->
+            <v-text-field v-model="selectedClaveInterna" label="Clave Interna" variant="outlined" readonly>
+              <template v-slot:append>
+                <v-btn @click="modalActivo = true" icon size="small">
+                  <v-icon>mdi-folder-open</v-icon>
+                </v-btn>
+              </template>
+            </v-text-field>
+
+            <!-- Modal para mostrar las opciones -->
+            <v-dialog v-model="modalActivo" max-width="500px">
+              <v-card>
+                <v-card-title>Seleccione una Clave Interna</v-card-title>
+                <v-card-text>
+                  <v-list>
+                    <!-- Iterar sobre las opciones y mostrarlas en una lista -->
+                    <v-list-item v-for="clave in productos" :key="clave[0]" @click="seleccionarClaveInterna(clave[0])">
+                      <v-list-item-title>{{ clave[0] }}</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-card-text>
+                <v-card-actions>
+                  <v-btn color="primary" @click="modalActivo = false">Cerrar</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
           </v-col>
           <v-col cols="2">
             <v-text-field v-model="unidades" label="Unidades" variant="outlined" clearable ></v-text-field>
@@ -185,6 +205,7 @@ export default {
     return{
     selectedItem: null,
     drawer: false,
+    modalActivo: false,
     items: [
       { title: 'Inicio', path: '/'},
       { title: 'Inventario', path: '/'},
@@ -242,7 +263,7 @@ export default {
         this.clienteDetalle = null;
       }
     },
-    selectedClaveInterna(newValue) {
+    /* selectedClaveInterna(newValue) {
       if (newValue) {
         const productoSeleccionado = this.productos.find(producto => producto[0] === newValue);
         if (productoSeleccionado) {
@@ -254,7 +275,7 @@ export default {
           this.precio = productoSeleccionado[4].toString();
         }
       }
-    },
+    }, */
     //Recalcular valores de moni moni
     unidades(newValue) {
       this.calcularImporte(newValue);
@@ -278,6 +299,28 @@ export default {
     calcularImporte(unidades) {
       const importe = parseFloat(this.precio) * parseFloat(unidades);
       this.importe = isNaN(importe) ? '' : importe.toFixed(2);
+    },
+        seleccionarClaveInterna(claveInterna) {
+      // Ejecutar la misma lógica que en el watcher del ComboBox
+      this.selectedClaveInterna = claveInterna;
+      // También podrías cerrar el modal aquí si lo deseas
+      this.modalActivo = false;
+      // Llamar a la función que maneja el cambio en la clave interna
+      this.actualizarDetallesProducto(claveInterna);
+    },
+    actualizarDetallesProducto(claveInterna) {
+      // Lógica para actualizar los detalles del producto
+      const productoSeleccionado = this.productos.find(producto => producto[0] === claveInterna);
+      if (productoSeleccionado) {
+        // Actualizar los campos con los detalles del producto seleccionado
+        this.unidades = '1';
+        this.selectedClaveProducto = productoSeleccionado[1];
+        this.selectedClaveUnidad = productoSeleccionado[2];
+        this.descripcion = productoSeleccionado[3];
+        this.precio = productoSeleccionado[4].toString();
+        // Recalcular el importe
+        this.calcularImporte(this.unidades);
+      }
     }
   }
 }
